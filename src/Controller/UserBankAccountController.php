@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Assembler\UserBankAccountAssembler;
+use App\Dto\UserBankAccountDto;
 use App\Entity\UserBankAccount;
 use App\Form\UserBankAccountType;
 use App\Repository\UserBankAccountRepository;
@@ -12,13 +14,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/users/{id}/accounts')]
 class UserBankAccountController extends AbstractController
 {
     public function __construct(
         private UserBankAccountRepository $userBankAccountRepository,
-        private TransactionService $transactionService
+        private  UserBankAccountAssembler $userBankAccountAssembler,
+//        private SerializerInterface $serializer
     )
     {}
 
@@ -39,10 +44,9 @@ class UserBankAccountController extends AbstractController
 
 
     #[Route('/debit', name: 'user_bank_account_debit', methods: ['PUT'])]
-    public function putDebit(int $id, Request $request): Response
+    public function putDebit(int $id, UserBankAccountDto $userBankAccountDto,Request $request): Response
     {
         $userBankAccount = $this->userBankAccountRepository->find($id);
-
         if(!$userBankAccount){
             return $this->json(
                 ['message' => 'User not found'],
@@ -50,22 +54,34 @@ class UserBankAccountController extends AbstractController
                 ['Content-Type' => 'application/json']
             );
         }
-        $amount = $request->get('amount');
-        $debitedAmount = $this->transactionService->debit($amount, $userBankAccount);
 
-        return $this->json($userBankAccount, 200, ['Content-Type' => 'application/json']);
+        $amount = json_decode($request->getContent())->amount;
+        $userBankAccountDto->transactionAmount = $amount;
+        $userBankAccountDto->transactionType = UserBankAccountDto::TRANSACTION_DEBIT;
+
+
+        $userBankAccountDto = $this->userBankAccountAssembler->transform($userBankAccountDto, $userBankAccount);
+        return $this->json($userBankAccountDto, 200, ['Content-Type' => 'application/json']);
 
     }
 
-    #[Route('/debit', name: 'user_bank_account_debit', methods: ['PUT'])]
-    public function putCredit(Request $request, UserBankAccount $userBankAccount, EntityManagerInterface $entityManager): Response
+    #[Route('/credit', name: 'user_bank_account_credit', methods: ['PUT'])]
+    public function putCredit(int $id, Request $request, UserBankAccountDto $userBankAccountDto): Response
     {
+        $userBankAccount = $this->userBankAccountRepository->find($id);
+        $amount = json_decode($request->getContent())->amount;
+        $userBankAccountDto->transactionAmount = $amount;
+        $userBankAccountDto->transactionType = UserBankAccountDto::TRANSACTION_CREDIT;
+
+
+
         if(!$userBankAccount){
             return $this->json("User not found", 404, ['Content-Type' => 'application/json']);
         }
-        $amount = $request->get('amount');
-        //transactionService->credit($amount, $userBankAccount);
-        return $this->json($userBankAccount, 200, ['Content-Type' => 'application/json']);
+
+        $userBankAccountDto = $this->userBankAccountAssembler->transform($userBankAccountDto, $userBankAccount);
+
+        return $this->json($userBankAccountDto, 200, ['Content-Type' => 'application/json']);
 
     }
     
