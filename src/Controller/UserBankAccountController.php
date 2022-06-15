@@ -23,7 +23,6 @@ class UserBankAccountController extends AbstractController
     public function __construct(
         private UserBankAccountRepository $userBankAccountRepository,
         private  UserBankAccountAssembler $userBankAccountAssembler,
-//        private SerializerInterface $serializer
     )
     {}
 
@@ -57,7 +56,7 @@ class UserBankAccountController extends AbstractController
 
         $amount = json_decode($request->getContent())->amount;
         $userBankAccountDto->transactionAmount = $amount;
-        $userBankAccountDto->transactionType = UserBankAccountDto::TRANSACTION_DEBIT;
+        $userBankAccountDto->transactionType = UserBankAccount::TRANSACTION_DEBIT;
 
 
         $userBankAccountDto = $this->userBankAccountAssembler->transform($userBankAccountDto, $userBankAccount);
@@ -71,7 +70,7 @@ class UserBankAccountController extends AbstractController
         $userBankAccount = $this->userBankAccountRepository->find($id);
         $amount = json_decode($request->getContent())->amount;
         $userBankAccountDto->transactionAmount = $amount;
-        $userBankAccountDto->transactionType = UserBankAccountDto::TRANSACTION_CREDIT;
+        $userBankAccountDto->transactionType = UserBankAccount::TRANSACTION_CREDIT;
 
 
 

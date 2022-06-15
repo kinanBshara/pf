@@ -20,10 +20,10 @@ public function transform(?UserBankAccountDto $userBankAccountDto, UserBankAccou
     $userBankAccountDto->fullname       = $userBankAccount->getFullName();
     $userBankAccountDto->email          = $userBankAccount->getEmail();
 
-    if ($userBankAccountDto->transactionType === UserBankAccountDto::TRANSACTION_DEBIT) {
+    if ($userBankAccountDto->transactionType === UserBankAccount::TRANSACTION_DEBIT) {
         $userBankAccountDto->debitedAmount  = $this->transactionService->debit($userBankAccountDto->transactionAmount, $userBankAccount);
     }
-    if ($userBankAccountDto->transactionType === UserBankAccountDto::TRANSACTION_CREDIT) {
+    if ($userBankAccountDto->transactionType === UserBankAccount::TRANSACTION_CREDIT) {
         $userBankAccountDto->creditedAmount = $this->transactionService->credit($userBankAccountDto->transactionAmount, $userBankAccount);
     }
     $userBankAccountDto->balance        = $userBankAccount->getBalance();

@@ -4,12 +4,17 @@ namespace App\Entity;
 
 use App\Repository\UserBankAccountRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=UserBankAccountRepository::class)
+ * @UniqueEntity("email")
  */
 class UserBankAccount
 {
+    public const TRANSACTION_DEBIT = 'debit';
+    public const TRANSACTION_CREDIT = 'credit';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

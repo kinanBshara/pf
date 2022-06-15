@@ -3,31 +3,29 @@
 namespace App\Service;
 
 use App\Entity\UserBankAccount;
-use Doctrine\ORM\EntityManager;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 
 class TransactionService
 {
     public const FLOOR_AMOUNT = 1000;
 
-    public function __construct(private ManagerRegistry $managerRegistry)
+    public function __construct(private EntityManagerInterface $em)
     {}
 
     public function debit(int $amount, UserBankAccount $userBankAccount) : int
     {
-
         $balance = $userBankAccount->getBalance();
 
         if($balance >= $amount) {
-            $userBankAccount->setBalance($balance - $amount);
+            $amount = $balance - $amount;
+            $userBankAccount->setBalance($amount);
         } else {
             $userBankAccount->setBalance(0);
             $amount = $balance;
         }
 
-        $em = $this->managerRegistry->getManager();
-        $em->flush();
-        $this->isTimeToSendEmail();
+        $this->em->flush();
+//        $this->isTimeToSendEmail();
 
         return $amount;
     }
@@ -43,10 +41,9 @@ class TransactionService
             $userBankAccount->setBalance($balance + $amount);
         }
 
-        $em = $this->managerRegistry->getManager();
-        $em->flush();
+        $this->em->flush();
 
-        $this->isTimeToSendEmail();
+//        $this->isTimeToSendEmail();
 
         return $amount;
 

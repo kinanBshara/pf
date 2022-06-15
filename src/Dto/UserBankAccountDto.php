@@ -4,8 +4,6 @@ namespace App\Dto;
 
 class UserBankAccountDto
 {
-    public const TRANSACTION_DEBIT = 'debit';
-    public const TRANSACTION_CREDIT = 'credit';
 
     public $id;
     public $fullname;
