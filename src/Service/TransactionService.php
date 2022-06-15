@@ -54,18 +54,14 @@ class TransactionService
 
     public function isTimeToSendEmail() : bool
     {
-        $current_time = time();
-        $new_date_time = date('h:i A', ($current_time));
+        $now = date('h:i A', time());
 
-        $sunrise = "06:00 am";
-        $sunset = "10:00 pm";
-
-        $date1 = \DateTime::createFromFormat('h:i a', $current_time);
-        $date2 = \DateTime::createFromFormat('h:i a', $sunrise);
-        $date3 = \DateTime::createFromFormat('h:i a', $sunset);
+        $current_time = \DateTime::createFromFormat('h:i a', $now);
+        $start = \DateTime::createFromFormat('h:i a', "06:00 am");
+        $end = \DateTime::createFromFormat('h:i a', "10:00 pm");
 
 
-        if ($date1 > $date2 && $date1 < $date3)
+        if ($current_time > $start && $current_time < $end)
         {
             dd('hello');
             echo 'here';
