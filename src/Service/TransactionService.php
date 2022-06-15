@@ -49,22 +49,22 @@ class TransactionService
 
     }
 
-    public function isTimeToSendEmail() : bool
+    public function isTimeToSendEmail() : void
     {
         $now = date('h:i A', time());
-
+        //$now = "11:00 pm";
+        //echo ($now);
         $current_time = \DateTime::createFromFormat('h:i a', $now);
         $start = \DateTime::createFromFormat('h:i a', "06:00 am");
         $end = \DateTime::createFromFormat('h:i a', "10:00 pm");
 
 
-        if ($current_time > $start && $current_time < $end)
+        if ($current_time >= $start && $current_time < $end)
         {
-            dd('hello');
-            echo 'here';
-        }
+            echo 'don\'t send notification';
 
-        dd('top');
+        }
+        echo 'send notification';
     }
 
 }
