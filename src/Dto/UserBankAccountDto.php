@@ -12,6 +12,7 @@ class UserBankAccountDto
     public $balance;
     public $debitedAmount;
     public $creditedAmount;
+    public $transactionRemain;
     public $transactionType;
 
 }

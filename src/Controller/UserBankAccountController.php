@@ -5,17 +5,12 @@ namespace App\Controller;
 use App\Assembler\UserBankAccountAssembler;
 use App\Dto\UserBankAccountDto;
 use App\Entity\UserBankAccount;
-use App\Form\UserBankAccountType;
 use App\Repository\UserBankAccountRepository;
-use App\Service\TransactionService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/users/{id}/accounts')]
 class UserBankAccountController extends AbstractController
@@ -23,6 +18,7 @@ class UserBankAccountController extends AbstractController
     public function __construct(
         private UserBankAccountRepository $userBankAccountRepository,
         private  UserBankAccountAssembler $userBankAccountAssembler,
+        private EntityManagerInterface $entityManager
     )
     {}
 
@@ -38,7 +34,10 @@ class UserBankAccountController extends AbstractController
                 ['Content-Type' => 'application/json']
             );
         }
-        return $this->json($userBankAccount, 200, ['Content-Type' => 'application/json']);
+        return $this->json(
+            $userBankAccount,
+            200,
+            ['Content-Type' => 'application/json']
     }
 
 
@@ -47,20 +46,22 @@ class UserBankAccountController extends AbstractController
     {
         $userBankAccount = $this->userBankAccountRepository->find($id);
         if(!$userBankAccount){
-            return $this->json(
-                ['message' => 'User not found'],
-                404,
-                ['Content-Type' => 'application/json']
-            );
+            return $this->json(['message' => 'User not found'], 404, ['Content-Type' => 'application/json']);
         }
 
-        $amount = json_decode($request->getContent())->amount;
-        $userBankAccountDto->transactionAmount = $amount;
+        $transactionAmount = json_decode($request->getContent())->amount;
+        $userBankAccountDto->transactionAmount = $transactionAmount;
+
         $userBankAccountDto->transactionType = UserBankAccount::TRANSACTION_DEBIT;
 
+        $this->userBankAccountAssembler->reverseTransform($userBankAccountDto, $userBankAccount);
+        $this->entityManager->flush();
 
-        $userBankAccountDto = $this->userBankAccountAssembler->transform($userBankAccountDto, $userBankAccount);
-        return $this->json($userBankAccountDto, 200, ['Content-Type' => 'application/json']);
+        return $this->json(
+            $this->userBankAccountAssembler->transform($userBankAccountDto, $userBankAccount),
+            200,
+            ['Content-Type' => 'application/json']
+        );
 
     }
 
@@ -68,20 +69,22 @@ class UserBankAccountController extends AbstractController
     public function putCredit(int $id, Request $request, UserBankAccountDto $userBankAccountDto): Response
     {
         $userBankAccount = $this->userBankAccountRepository->find($id);
-        $amount = json_decode($request->getContent())->amount;
-        $userBankAccountDto->transactionAmount = $amount;
-        $userBankAccountDto->transactionType = UserBankAccount::TRANSACTION_CREDIT;
-
-
-
         if(!$userBankAccount){
             return $this->json("User not found", 404, ['Content-Type' => 'application/json']);
         }
 
-        $userBankAccountDto = $this->userBankAccountAssembler->transform($userBankAccountDto, $userBankAccount);
+        $transactionAmount = json_decode($request->getContent())->amount;
 
-        return $this->json($userBankAccountDto, 200, ['Content-Type' => 'application/json']);
+        $userBankAccountDto->transactionAmount = $transactionAmount;
+        $userBankAccountDto->transactionType = UserBankAccount::TRANSACTION_CREDIT;
 
+        $this->userBankAccountAssembler->reverseTransform($userBankAccountDto, $userBankAccount);
+        $this->entityManager->flush();
+
+        return $this->json(
+            $this->userBankAccountAssembler->transform($userBankAccountDto, $userBankAccount),
+            200,
+            ['Content-Type' => 'application/json']);
     }
     
 }

@@ -9,39 +9,29 @@ class TransactionService
 {
     public const FLOOR_AMOUNT = 1000;
 
-    public function __construct(private EntityManagerInterface $em, private EmailService $emailService)
+    public function __construct(private EmailService $emailService)
     {}
 
     public function debit(int $amount, UserBankAccount $userBankAccount) : int
     {
         $balance = $userBankAccount->getBalance();
 
-        if($balance >= $amount) {
-            $amount = $balance - $amount;
-            $userBankAccount->setBalance($amount);
-        } else {
-            $userBankAccount->setBalance(0);
+        if ($balance <= $amount) {
+            # Remain only debited
             $amount = $balance;
         }
 
-        $this->em->flush();
         $this->notify($userBankAccount->getEmail());
-
         return $amount;
+
     }
 
     public function credit(int $amount, UserBankAccount $userBankAccount) : int
     {
         $balance = $userBankAccount->getBalance();
-
         if ($balance + $amount > self::FLOOR_AMOUNT) {
-            $userBankAccount->setBalance(self::FLOOR_AMOUNT);
             $amount = self::FLOOR_AMOUNT - $balance;
-        } else {
-            $userBankAccount->setBalance($balance + $amount);
         }
-
-        $this->em->flush();
 
         $this->notify($userBankAccount->getEmail());
 
