@@ -37,7 +37,7 @@ class UserBankAccountController extends AbstractController
         return $this->json(
             $userBankAccount,
             200,
-            ['Content-Type' => 'application/json']
+            ['Content-Type' => 'application/json']);
     }
 
 
