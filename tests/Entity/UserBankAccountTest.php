@@ -91,6 +91,28 @@ class UserBankAccountTest extends TestCase
         $amount4 = 750;
         $expected4 = 600;
         yield[$userBankAccount4, $amount4, $expected4, UserBankAccount::TRANSACTION_DEBIT];
+
+        # Credit +100
+        $userBankAccount5 = new UserBankAccount();
+        $userBankAccount5
+            ->setFullName('Alizée')
+            ->setEmail('alizée@test.com')
+            ->setBalance(900);
+
+        $amount5 = 100;
+        $expected5 = 100;
+        yield[$userBankAccount5, $amount5, $expected5, UserBankAccount::TRANSACTION_DEBIT];
+
+        # Debit -200
+        $userBankAccount6 = new UserBankAccount();
+        $userBankAccount6
+            ->setFullName('Julia')
+            ->setEmail('julia@test.com')
+            ->setBalance(100);
+
+        $amount6 = 200;
+        $expected6 = 100;
+        yield[$userBankAccount6, $amount6, $expected6, UserBankAccount::TRANSACTION_DEBIT];
     }
 
 
