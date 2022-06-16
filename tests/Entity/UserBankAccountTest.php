@@ -91,6 +91,15 @@ class UserBankAccountTest extends TestCase
         $amount4 = 750;
         $expected4 = 600;
         yield[$userBankAccount4, $amount4, $expected4, UserBankAccount::TRANSACTION_DEBIT];
-
     }
+
+
+    public function testIsTimeToSendEmail()
+    {
+        $result = $this->transactionService->isTimeToSendEmail();
+        $expected = false;
+
+        $this->assertEquals($expected, $result);
+    }
+
 }
