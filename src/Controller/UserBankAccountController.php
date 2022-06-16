@@ -30,13 +30,13 @@ class UserBankAccountController extends AbstractController
         if(!$userBankAccount){
             return $this->json(
                 ['message' => 'User not found'],
-                404,
+                Response::HTTP_NOT_FOUND,
                 ['Content-Type' => 'application/json']
             );
         }
         return $this->json(
             $userBankAccount,
-            200,
+            Response::HTTP_OK,
             ['Content-Type' => 'application/json']);
     }
 
@@ -46,7 +46,7 @@ class UserBankAccountController extends AbstractController
     {
         $userBankAccount = $this->userBankAccountRepository->find($id);
         if(!$userBankAccount){
-            return $this->json(['message' => 'User not found'], 404, ['Content-Type' => 'application/json']);
+            return $this->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND, ['Content-Type' => 'application/json']);
         }
 
         $transactionAmount = json_decode($request->getContent())->amount;
@@ -59,7 +59,7 @@ class UserBankAccountController extends AbstractController
 
         return $this->json(
             $this->userBankAccountAssembler->transform($userBankAccountDto, $userBankAccount),
-            200,
+            Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );
 
@@ -70,7 +70,7 @@ class UserBankAccountController extends AbstractController
     {
         $userBankAccount = $this->userBankAccountRepository->find($id);
         if(!$userBankAccount){
-            return $this->json("User not found", 404, ['Content-Type' => 'application/json']);
+            return $this->json("User not found", Response::HTTP_NOT_FOUND, ['Content-Type' => 'application/json']);
         }
 
         $transactionAmount = json_decode($request->getContent())->amount;
@@ -83,7 +83,7 @@ class UserBankAccountController extends AbstractController
 
         return $this->json(
             $this->userBankAccountAssembler->transform($userBankAccountDto, $userBankAccount),
-            200,
+            Response::HTTP_OK,
             ['Content-Type' => 'application/json']);
     }
     
